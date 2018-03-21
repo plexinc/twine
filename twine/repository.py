@@ -174,9 +174,24 @@ class Repository(object):
 
         return resp
 
+    def artifactory_package_is_uploaded(self, package):
+        name = package.safe_name
+        version = package.metadata_dictionary()["version"]
+        basefilename = package.basefilename
+        url = "https://artifactory.plex.bz/artifactory/pytools/{name}/{version}/{basefilename}".format(**locals())
+
+        response = self.session.head(url)
+        if response.status_code == 200:
+          return True
+
+        return False
+
     def package_is_uploaded(self, package, bypass_cache=False):
         # NOTE(sigmavirus24): Not all indices are PyPI and pypi.io doesn't
         # have a similar interface for finding the package versions.
+        if "artifactory" in self.url:
+            return self.artifactory_package_is_uploaded(package)
+
         if not self.url.startswith((LEGACY_PYPI, WAREHOUSE, OLD_WAREHOUSE)):
             return False
 
