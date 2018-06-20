@@ -170,6 +170,7 @@ class Repository(object):
                           retry=number_of_redirects,
                       ))
             else:
+                print(f"Error when uploading: {resp.status_code}: {resp.text}")
                 return resp
 
         return resp
